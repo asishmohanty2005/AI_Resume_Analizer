@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Resume Analyzer</title>
+<link href = "logo.jpg" rel = "icon" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script>
+  (function () {
+    var saved = localStorage.getItem("resumeiq_theme");
+    var theme = saved || (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    if (theme === "light") document.documentElement.setAttribute("data-theme", "light");
+  })();
+</script>
+</head>
+<body>
+
+<!-- Paper texture / grain overlay -->
+<div class="grain"></div>
+
+<!-- ============ HEADER ============ -->
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="#" onclick="return false;">
+      <span class="brand-mark">IQ</span>
+      <span class="brand-name">ATSIQ</span>
+    </a>
+
+    <div class="header-actions">
+      <span class="tagline">AI Resume Analyzer</span>
+
+      <!-- Theme toggle -->
+      <button class="theme-toggle" id="theme-toggle" title="Toggle theme" aria-label="Toggle light/dark theme">
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </button>
+
+      <!-- Logged-out state -->
+      <button class="btn-ghost" id="login-trigger" title="Optional — you can use ResumeIQ without an account">Sign in</button>
+
+      <!-- Logged-in state -->
+      <div class="user-chip" id="user-chip" hidden>
+        <span class="user-avatar" id="user-avatar">A</span>
+        <span class="user-name" id="user-name-label">Account</span>
+        <button class="btn-icon" id="logout-btn" title="Sign out">⎋</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ AUTH MODAL ============ -->
+<div class="modal-backdrop" id="auth-backdrop">
+  <div class="modal auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+    <button class="modal-close" id="auth-close" aria-label="Close">✕</button>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="signin">Sign in</button>
+      <button class="auth-tab" data-tab="signup">Create account</button>
+    </div>
+
+    <h2 id="auth-title" class="auth-heading">Welcome back</h2>
+    <p class="auth-sub">Sign in to save your reviews and pick up where you left off.</p>
+
+    <form id="auth-form" class="auth-form">
+      <label class="field">
+        <span>Name</span>
+        <input type="text" id="auth-name" placeholder="Enter Your Name" autocomplete="name">
+      </label>
+      <label class="field">
+        <span>Email</span>
+        <input type="email" id="auth-email" placeholder="you@gmail.com" autocomplete="email" required>
+      </label>
+      <label class="field">
+        <span>Password</span>
+        <input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password" required minlength="6">
+      </label>
+      <p class="auth-error" id="auth-error" hidden></p>
+      <button type="submit" class="btn-primary auth-submit" id="auth-submit">Sign in</button>
+    </form>
+
+    <p class="auth-note">Accounts are managed securely by Supabase Auth (email + password). Your password is never stored on this device.</p>
+
+    <button type="button" class="auth-skip" id="auth-skip">Continue without an account →</button>
+  </div>
+</div>
+
+<!-- ============ MAIN ============ -->
+<main class="container">
+
+  <section class="hero">
+    <div class="hero-text">
+      <p class="eyebrow">⚡ AI Resume Analyzer</p>
+      <h1>Get your resume scored,<br> the way an <span class="grad-text">ATS + an editor</span> would.</h1>
+      <p class="hero-sub">Upload your resume — or paste it in — and get a scored, section-by-section breakdown: ATS keyword gaps, grammar slips, missing sections, and a live match score against any job description.</p>
+      <div class="hero-badges">
+        <span class="mini-badge">Instant scoring</span>
+        <span class="mini-badge">Grammar check</span>
+        <span class="mini-badge">JD match %</span>
+      </div>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hv-card">
+        <div class="hv-top">
+          <div class="hv-score-circle">
+            <span class="hv-num">87</span><span class="hv-lbl">/100</span>
+          </div>
+          <div class="hv-top-text">
+            <span class="hv-verdict">Strong, interview-ready</span>
+            <span class="hv-sub">Sample preview</span>
+          </div>
+        </div>
+        <div class="hv-stats">
+          <div class="hv-stat">
+            <span class="hv-stat-label">ATS match</span>
+            <span class="hv-stat-num">82</span>
+            <span class="hv-stat-tag good">Good</span>
+          </div>
+          <div class="hv-stat">
+            <span class="hv-stat-label">Grammar</span>
+            <span class="hv-stat-num">94</span>
+            <span class="hv-stat-tag excellent">Excellent</span>
+          </div>
+          <div class="hv-stat">
+            <span class="hv-stat-label">Impact</span>
+            <span class="hv-stat-num">68</span>
+            <span class="hv-stat-tag warn">Needs work</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="setup-note" id="setup-note" hidden>
+    <strong>Backend needed:</strong> the resume analysis runs on the FastAPI backend. Start it from the <code>backend/</code> folder with <code>uvicorn app.main:app --reload</code> and add your Gemini API key to <code>backend/.env</code>.
+  </div>
+
+  <!-- ============ INPUT CARD ============ -->
+  <section class="panel" id="input-sec">
+
+    <div class="panel-grid">
+      <!-- Resume input -->
+      <div class="col">
+        <h3 class="col-label"><span class="num">01</span> Your resume</h3>
+
+        <label class="drop-zone" id="drop-zone" for="file-input">
+          <input type="file" id="file-input" class="visually-hidden-input" accept=".pdf,.docx,.txt,text/plain" onchange="handleFile(this.files[0])">
+          <div class="dz-icon">📄</div>
+          <div class="dz-title">Drop your resume here</div>
+          <div class="dz-sub">or click to browse — PDF, DOCX, or TXT (max 5MB)</div>
+          <div class="dz-badge">Max 5MB</div>
+        </label>
+
+        <div class="file-preview" id="file-preview">
+          <span class="fi" id="file-icon">📄</span>
+          <span class="fname" id="file-name">resume.pdf</span>
+          <span class="fsize" id="file-size">0 KB</span>
+          <button class="rm" onclick="removeFile()" aria-label="Remove file">✕</button>
+        </div>
+
+        <div class="or-divider"><span>or paste text instead</span></div>
+
+        <textarea id="resume-text" placeholder="Paste your resume text here..."></textarea>
+      </div>
+
+      <!-- Job targeting -->
+      <div class="col">
+        <h3 class="col-label"><span class="num">02</span> Target the review</h3>
+
+        <label class="field">
+          <span>Target role <em>(optional)</em></span>
+          <input type="text" id="job-role" placeholder="e.g. Senior Frontend Developer">
+        </label>
+
+        <label class="field grow">
+          <span>Job description <em>(optional — enables match scoring)</em></span>
+          <textarea id="job-desc" class="jd-textarea" placeholder="Paste the job description here to see how well your resume matches it..."></textarea>
+        </label>
+
+        <div class="check-row">
+          <label class="checkbox">
+            <input type="checkbox" id="check-grammar" checked>
+            <span>Check grammar &amp; phrasing</span>
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" id="check-sections" checked>
+            <span>Flag missing sections</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary btn-analyze" id="analyze-btn" onclick="analyzeResume()">
+      Analyze my resume
+    </button>
+    <p class="no-account-note">No account needed — this works whether or not you're signed in.</p>
+    <div class="error-box" id="err-box"></div>
+  </section>
+
+  <!-- ============ LOADING ============ -->
+  <section class="loading" id="loading">
+    <div class="spinner"></div>
+    <p id="load-txt">Reading the file...</p>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section class="results" id="results"></section>
+
+  <div class="results-actions">
+    <button class="btn-secondary" id="download-btn" onclick="downloadPDF()" hidden>Download as PDF</button>
+    <button class="btn-ghost" id="reset-btn" onclick="resetAll()" hidden>Review another resume</button>
+  </div>
+
+  <!-- ============ SAVED REVIEWS (signed-in dashboard) ============ -->
+  <section class="panel" id="history-sec" hidden>
+    <h3 class="col-label"><span class="num">03</span> My saved reviews</h3>
+    <div class="history-list" id="history-list"></div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p class="footer-note">Resume analysis runs on the FastAPI backend with Google AI. When you're signed in, your reviews are saved securely to your Supabase account.</p>
+  
+  <div class="footer-socials">
+    <a class="social-link" href="mailto:codertheashish@example.com" title="Email" aria-label="Email">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 6-10 7L2 6"></path></svg>
+    </a>
+    <a class="social-link" href="https://github.com/codertheashish/" target="_blank" rel="noopener" title="GitHub" aria-label="GitHub">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.73.5.98 5.24.98 11.52c0 5.02 3.26 9.28 7.78 10.78.57.1.78-.25.78-.55 0-.27-.01-1.16-.02-2.11-3.17.69-3.84-1.35-3.84-1.35-.52-1.31-1.26-1.66-1.26-1.66-1.03-.71.08-.69.08-.69 1.14.08 1.74 1.17 1.74 1.17 1.01 1.73 2.65 1.23 3.3.94.1-.74.4-1.23.72-1.51-2.53-.29-5.19-1.27-5.19-5.63 0-1.24.44-2.26 1.17-3.05-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.16a10.9 10.9 0 0 1 5.74 0c2.19-1.47 3.15-1.16 3.15-1.16.62 1.58.23 2.75.11 3.04.73.79 1.17 1.81 1.17 3.05 0 4.37-2.67 5.34-5.21 5.62.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .3.2.66.79.55 4.52-1.51 7.78-5.76 7.78-10.78C23.02 5.24 18.27.5 12 .5Z"></path></svg>
+    </a>
+    <a class="social-link" href="https://www.linkedin.com/in/codertheashish/" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.03-1.85-3.03-1.85 0-2.14 1.45-2.14 2.94v5.66H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.61 0 4.28 2.38 4.28 5.47v6.27ZM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.12 20.45H3.56V9h3.56v11.45Z"></path></svg>
+    </a>
+    <a class="social-link" href="https://www.instagram.com/codertheashish/" target="_blank" rel="noopener" title="Instagram" aria-label="Instagram">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"></circle></svg>
+    </a>
+  </div>
+  <p class="footer-copy">© 2026 AI Resume Analyzer. Designed &amp; Developed by <span class="footer-name">Ashish Kumar Prajapati</span></p>
+
+</footer>
+
+<div class="print-credit" aria-hidden="true">codertheashish</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="http://localhost:8000/api/public-config.js"></script>
+<script src="js/config.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/api.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
