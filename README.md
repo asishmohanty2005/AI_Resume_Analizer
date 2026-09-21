@@ -1,243 +1,645 @@
-# AI Resume Analyzer
+# 🤖 AI Resume Analyzer
 
-For current local setup, runtime configuration, test commands and the live-service checklist, see [LIVE_VERIFICATION.md](LIVE_VERIFICATION.md).
+An intelligent web application that analyzes resumes using AI, highlights strengths and weaknesses, identifies important skills, and helps users compare their resume with job descriptions.
 
-An AI-powered Resume Analyzer built with a **vanilla HTML/CSS/JS frontend**, a **Python FastAPI backend**, and **Google Gemini AI**. It analyzes resumes, evaluates ATS readiness, provides resume scores, detects grammar issues, identifies missing sections, and matches resumes with job descriptions.
-
-The Gemini API key lives **only on the backend** — it is never exposed in frontend JavaScript.
+The project combines **AI-powered resume analysis**, **Supabase authentication and database storage**, and a clean web interface to provide useful feedback for students, freshers, and job seekers.
 
 ---
 
-## 🤖 Demo :
+## 🚀 Features
 
-```bash
-https://codertheashish.github.io/AI-Resume-Analyzer/
+* 📄 Upload and analyze resumes
+* 🤖 AI-powered resume evaluation using Google Gemini
+* 🎯 Resume and job description matching
+* 🧠 Skill identification and analysis
+* 📊 Resume score and structured feedback
+* ✅ Strengths and improvement suggestions
+* 🔍 Missing skill identification
+* 💼 Job suitability analysis
+* 🔐 User authentication with Supabase
+* 📚 Resume analysis history
+* 💾 Save resumes and previous analysis results
+* 🗑️ Delete previous analysis records
+* 🔒 Secure environment variable handling
+* 📱 Responsive and user-friendly interface
+
+---
+
+## 🧠 How It Works
+
+The AI Resume Analyzer follows a simple workflow:
+
+```text
+Upload Resume
+      ↓
+Extract Resume Content
+      ↓
+Process Resume Information
+      ↓
+Send Relevant Content to Gemini AI
+      ↓
+AI Analyzes Resume
+      ↓
+Generate Score + Feedback
+      ↓
+Display Skills, Strengths & Improvements
+      ↓
+Save Analysis to Supabase
 ```
 
----
+Users can also provide a **job description** to compare it with their resume.
 
-## ✨ Features
-
-- 📄 Upload Resume (PDF, DOCX, or TXT)
-- 📝 Paste Resume Text
-- 🤖 AI-Powered Resume Analysis (server-side, key never in the browser)
-- 📊 Overall Resume Score (0-100)
-- 🛡️ Deterministic ATS Readiness Estimate (explained category breakdown)
-- 💼 Job Description Matching (deterministic score + AI interpretation)
-- ✍️ Grammar & Writing Suggestions
-- 📌 Missing Section Detection
-- 📈 Section-wise Performance Score
-- 🏆 Resume Strengths & Weaknesses
-- 🔑 Missing ATS Keywords
-- 📥 Download Report as PDF
-- 🌙 Light & Dark Theme
-- 👤 Supabase Authentication (email & password)
-- 💾 Saved reviews, analysis history, and profile storage
+```text
+Resume + Job Description
+          ↓
+      AI Comparison
+          ↓
+   Skill Gap Analysis
+          ↓
+ Job Match Recommendations
+```
 
 ---
 
 ## 🛠️ Tech Stack
 
-- Frontend: HTML5, CSS3, JavaScript (ES6)
-- Backend: Python, FastAPI, Uvicorn, PyMuPDF, python-docx
-- AI: Google Gemini SDK (server-side only)
-- Auth & storage: Supabase (Auth, Postgres, Row Level Security)
-- Responsive Design
+### Frontend
+
+* HTML
+* CSS
+* JavaScript
+
+### Backend
+
+* Python
+* FastAPI
+
+### AI
+
+* Google Gemini API
+
+### Database & Authentication
+
+* Supabase
+* PostgreSQL
+* Supabase Authentication
+* Row Level Security
+
+### Development Tools
+
+* VS Code
+* Git
+* GitHub
+* npm
+* Playwright
+* Ruff
+* ESLint
 
 ---
 
 ## 📂 Project Structure
 
-```
-ATSIQ/
+```text
+AI-Resume-Analyzer/
 │
-├── index.html
-├── logo.jpg
-│
-├── css/
-│   └── style.css
+├── backend/
+│   ├── app/
+│   │   ├── config.py
+│   │   └── main.py
+│   │
+│   ├── tests/
+│   │   └── test_configuration.py
+│   │
+│   ├── .env
+│   ├── .env.example
+│   ├── requirements.txt
+│   └── requirements-dev.txt
 │
 ├── js/
-│   ├── app.js
-│   ├── api.js
-│   ├── auth.js
 │   ├── config.js
-│   ├── supabase.js
-│   └── theme.js
+│   └── supabase.js
+│
+├── scripts/
+│   └── serve_frontend.py
 │
 ├── supabase/
 │   └── schema.sql
 │
-├── backend/
-│   ├── app/
-│   │   ├── main.py
-│   │   ├── config.py
-│   │   ├── routes/
-│   │   │   ├── analyze.py
-│   │   │   ├── job_match.py
-│   │   │   └── health.py
-│   │   ├── schemas/
-│   │   │   └── resume.py
-│   │   └── services/
-│   │       ├── gemini_service.py
-│   │       ├── ats_engine.py
-│   │       ├── resume_parser.py
-│   │       └── keyword_matcher.py
-│   ├── requirements.txt
-│   ├── Dockerfile
-│   └── .env.example
+├── tests/
+│   └── browser/
+│       └── smoke.spec.cjs
 │
+├── index.html
 ├── .env.example
+├── .gitignore
+├── eslint.config.cjs
+├── package.json
+├── package-lock.json
+├── playwright.config.cjs
+├── ruff.toml
 └── README.md
 ```
 
 ---
 
-## 🏗️ Architecture
+## 🔐 Environment Variables
 
-```
-                            ┌────────────────────┐
-        Browser  ─────────▶ │  Supabase          │  Auth + user data
-                            │  (anon key + RLS)  │  (profiles, resumes,
-                            └────────────────────┘   analyses, job_matches)
-          │
-          ▼
-                            ┌────────────────────┐
-        Browser  ─────────▶ │  FastAPI backend   │  GEMINI_API_KEY lives
-                            │  ────────────────▶ │  here, server-side only
-                            │  Gemini (Google AI)│
-                            └────────────────────┘
+Create a `.env` file inside the `backend` directory.
+
+```env
+GEMINI_API_KEY=your_gemini_api_key
+
+SUPABASE_URL=your_supabase_project_url
+
+SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-- The browser talks to **Supabase directly** (safe because RLS restricts every row to its owner).
-- The browser never calls Google's API and never sees the Gemini key.
-- `js/api.js` centralizes every call the frontend makes to the backend.
+### Important
+
+Never upload your real `.env` file to GitHub.
+
+Make sure `.env` is included in `.gitignore`.
+
+Do **not** expose private API keys or a Supabase service-role key in frontend JavaScript.
 
 ---
 
-## 🚀 Getting Started
+## 🗄️ Supabase Setup
 
-### 1. Clone Repository
+### 1. Create a Supabase Project
 
-```bash
-https://github.com/codertheashish/AI-Resume-Analyzer
+Go to Supabase and create a new project.
+
+---
+
+### 2. Enable Email Authentication
+
+Open:
+
+```text
+Authentication
+→ Providers
+→ Email
 ```
 
-### 2. Run the Frontend
+Enable the Email provider.
 
-Serve the folder with any static server, e.g.:
+For easier local testing, email confirmation can optionally be disabled from the authentication settings.
+
+---
+
+### 3. Create Database Tables
+
+Open:
+
+```text
+Supabase Dashboard
+→ SQL Editor
+→ New Query
+```
+
+Copy the SQL code from:
+
+```text
+supabase/schema.sql
+```
+
+Then run the query.
+
+The project database includes data for:
+
+* User profiles
+* Resumes
+* Resume analyses
+* Job matches
+
+Row Level Security is used so users can access only their own data.
+
+---
+
+### 4. Configure Supabase Credentials
+
+Open:
+
+```text
+Project Settings
+→ API
+```
+
+Copy:
+
+```text
+Project URL
+Anon / Public Key
+```
+
+Add them to:
+
+```env
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
+```
+
+---
+
+## 🤖 Gemini API Setup
+
+Create a Gemini API key from Google AI Studio.
+
+Add the key inside:
+
+```text
+backend/.env
+```
+
+Example:
+
+```env
+GEMINI_API_KEY=your_api_key_here
+```
+
+The API key should remain on the backend and should never be placed directly inside frontend JavaScript.
+
+---
+
+## ⚙️ Installation
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
+```
+
+Move into the project directory:
+
+```bash
+cd AI-Resume-Analyzer
+```
+
+---
+
+## 🐍 Backend Setup
+
+### 2. Create a Virtual Environment
+
+Windows:
+
+```bash
+python -m venv venv
+```
+
+Activate it:
+
+```bash
+venv\Scripts\activate
+```
+
+Linux/macOS:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+---
+
+### 3. Install Python Dependencies
+
+```bash
+pip install -r backend/requirements.txt
+```
+
+For development dependencies:
+
+```bash
+pip install -r backend/requirements-dev.txt
+```
+
+---
+
+### 4. Start the Backend
+
+Run the FastAPI application from the project directory.
+
+Example:
+
+```bash
+uvicorn backend.app.main:app --reload
+```
+
+The backend will normally be available at:
+
+```text
+http://127.0.0.1:8000
+```
+
+FastAPI documentation can usually be accessed at:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+---
+
+## 🌐 Frontend Setup
+
+Install Node dependencies:
+
+```bash
+npm install
+```
+
+The project includes a restricted frontend server that helps prevent private backend files from being exposed.
+
+Run:
 
 ```bash
 python scripts/serve_frontend.py
 ```
 
-then open `http://localhost:5500`.
+Then open the address shown in the terminal.
 
-### 3. Run the Backend
+---
+
+## 🔑 Authentication
+
+The application supports user authentication using Supabase.
+
+Users can:
+
+* Create an account
+* Sign in
+* Sign out
+* Save resumes
+* Save analysis results
+* View previous analyses
+* Delete previous analyses
+* Save job matching results
+
+Authentication data is protected using Supabase Row Level Security policies.
+
+---
+
+## 📊 Resume Analysis
+
+The AI can evaluate resume information and provide feedback such as:
+
+```text
+Resume Score
+
+Detected Skills
+
+Key Strengths
+
+Weak Areas
+
+Missing Skills
+
+Recommended Improvements
+
+Career Suggestions
+```
+
+The purpose of the score is to provide structured guidance rather than guarantee hiring or ATS results.
+
+---
+
+## 🎯 Job Description Matching
+
+Users can compare their resume with a job description.
+
+The system analyzes factors such as:
+
+* Relevant skills
+* Missing skills
+* Technical requirements
+* Resume keywords
+* Role compatibility
+* Experience relevance
+
+It then generates recommendations that can help users improve their resume for the selected role.
+
+---
+
+## 🛡️ Security
+
+Several security practices are used in the project.
+
+### API Key Protection
+
+Sensitive keys remain on the backend.
+
+### Environment Variables
+
+Private configuration is stored inside ignored `.env` files.
+
+### Supabase Row Level Security
+
+Database records are restricted based on the authenticated user.
+
+### Public Configuration Endpoint
+
+Only public Supabase configuration is exposed to the frontend through:
+
+```text
+/api/public-config.js
+```
+
+### Restricted Frontend Server
+
+The frontend server prevents direct access to private backend and environment files.
+
+---
+
+## 🧪 Testing
+
+### Python Tests
+
+Run:
 
 ```bash
-cd backend
-python -m venv .venv
-# Windows:
-.venv\Scripts\activate
-# macOS / Linux:
-source .venv/bin/activate
-
-pip install -r requirements.txt
+pytest backend/tests
 ```
 
-Create `backend/.env` (gitignored):
+### Browser Tests
 
-```
-GEMINI_API_KEY=YOUR_GEMINI_KEY
-SUPABASE_URL=
-SUPABASE_ANON_KEY=
-FRONTEND_URL=http://localhost:5500
-```
+The project includes Playwright smoke tests.
 
-Get a free Gemini key at https://aistudio.google.com/apikey
-
-Start the server:
+Run:
 
 ```bash
-uvicorn app.main:app --reload
+npx playwright test
 ```
 
-The API runs at `http://localhost:8000`. Docs: `http://localhost:8000/docs`. Health check: `http://localhost:8000/health`.
+### Python Code Quality
 
-**The Gemini key exists only on the backend.** `js/config.js` contains no Gemini key — only the public Supabase values and `API_BASE_URL`.
+```bash
+ruff check .
+```
 
----
+### JavaScript Code Quality
 
-## 🔐 Supabase Setup
-
-Accounts, saved reviews, and history are backed by [Supabase](https://supabase.com). To enable it:
-
-1. Create a free project at https://supabase.com/dashboard/project/new
-2. Go to **Authentication → Providers** and make sure **Email** is enabled (on by default). To let users sign up without email confirmation, disable **Confirm email** under **Authentication → Settings**, or leave it on to require confirmation.
-3. Run `supabase/schema.sql`: **SQL Editor → New query → paste contents → Run**. This creates `profiles`, `resumes`, `analyses`, and `job_matches` tables with Row Level Security and a trigger that creates a profile automatically on signup.
-4. Set these public values in `backend/.env`, then restart the backend and reload the page:
-   - `SUPABASE_URL` ← Project URL
-   - `SUPABASE_ANON_KEY` ← Project API keys → `anon`/`public` key
-
-The anon key is public by design — it's safe (and expected) in browser code. RLS is what keeps each user's data private. The `service_role` key is never needed by the frontend.
+```bash
+npx eslint .
+```
 
 ---
 
+## 💡 Use Cases
 
-## How It Works
+The project can be useful for:
 
-1. Upload Resume (PDF/DOCX/TXT) or Paste Text
-2. Backend Extracts Content (files only)
-3. Deterministic ATS Readiness Estimate (backend engine)
-4. Gemini Analyzes Resume (server-side, structured JSON)
-5. Job Match Analysis (deterministic overlap + AI interpretation)
-6. Resume Score Generation
-7. Download Report
-
----
-
-## Features Included
-
-- Resume Parsing
-- ATS Score
-- Keyword Detection
-- Resume Improvement Suggestions
-- Grammar Analysis
-- Job Description Match
-- PDF Report
-- Theme Switcher
+* College students
+* Fresh graduates
+* Internship applicants
+* Job seekers
+* Resume improvement
+* Skill-gap identification
+* Job description comparison
+* Career preparation
 
 ---
 
-## Future Improvements
+## 🔮 Future Improvements
 
-- Multiple Templates
-- Multi-language Support
-- Resume Comparison
-- Cloud Storage for uploaded resume files
+Possible future improvements include:
+
+* ATS-style resume scoring
+* Resume PDF preview
+* AI resume rewriting
+* Cover letter generation
+* LinkedIn profile analysis
+* Multiple resume comparison
+* Resume templates
+* Advanced skill-gap visualization
+* Job recommendations
+* Interview question generation
+* Resume version history
+* Analytics dashboard
+* Multi-language resume analysis
 
 ---
 
-## 📄 License
+## 📸 Screenshots
 
-This project is licensed under the MIT License.
+![Uploading Screenshot 2026-09-21 193502.png…]()
+
+
+### Home Page
+
+```text
+Add Screenshot Here
+```
+
+### Resume Analyzer
+
+```text
+Add Screenshot Here
+```
+
+### Analysis Result
+
+```text
+Add Screenshot Here
+```
+
+### Job Match
+
+```text
+Add Screenshot Here
+```
+
+### Analysis History
+
+```text
+Add Screenshot Here
+```
 
 ---
 
-## Author
+## 🎓 Learning Outcomes
 
-**Ashish Kumar Prajapati**
+While developing this project, I gained practical experience with:
 
-GitHub:<br>
-https://github.com/codertheashish
+* Python backend development
+* FastAPI
+* REST APIs
+* Gemini AI integration
+* Prompt engineering
+* Supabase authentication
+* PostgreSQL databases
+* Row Level Security
+* JavaScript
+* Secure environment configuration
+* API security
+* Browser testing
+* Git and GitHub
+* AI-powered web application development
 
-LinkedIn:<br>
-https://www.linkedin.com/in/codertheashish/
+---
 
+## 👨‍💻 Developer
+
+**Asish Mohanty**
+
+B.Tech in Computer Science & Engineering
+
+Interested in:
+
+* Artificial Intelligence
+* Machine Learning
+* Python Development
+* Full-Stack Development
+* Generative AI
+
+---
+
+## 🤝 Contributing
+
+Contributions, suggestions, and improvements are welcome.
+
+To contribute:
+
+1. Fork the repository.
+2. Create a new branch.
+
+```bash
+git checkout -b feature/new-feature
+```
+
+3. Make your changes.
+4. Commit your changes.
+
+```bash
+git commit -m "Add new feature"
+```
+
+5. Push your branch.
+
+```bash
+git push origin feature/new-feature
+```
+
+6. Create a Pull Request.
 
 ---
 
 ## ⭐ Support
 
-If you like this project, give it a ⭐ on GitHub.
+If you find this project useful, consider giving the repository a ⭐ on GitHub.
+
+It helps support the project and motivates future improvements.
+
+---
+
+## 📄 License
+
+This project is intended for educational and portfolio purposes.
+
+You can add an open-source license such as the **MIT License** if you want others to reuse or contribute to the project.
+
+---
+
+# AI Resume Analyzer
+
+**Analyze smarter. Improve faster. Build a stronger resume with AI.**
